@@ -1,0 +1,1 @@
+To solve puzzles on Inazuma.

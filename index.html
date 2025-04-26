@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Puzzle Solver</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #2d2d2d;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bbbbbb;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 15px;
+            background: #3a3a3a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background: #444444;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 16px;
+            min-height: 40px;
+        }
+
+        .success {
+            background: #4CAF5033;
+            color: #d4edda;
+        }
+
+        .error {
+            background: #ff444433;
+            color: #f8d7da;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Puzzle Solver</h1>
+        
+        <div class="input-group">
+            <label for="arrayInput">Array (comma-separated):</label>
+            <input type="text" id="arrayInput" placeholder="e.g. 1,2,1,1">
+        </div>
+        
+        <div class="input-group">
+            <label for="targetInput">Target:</label>
+            <input type="number" id="targetInput" placeholder="e.g. 3">
+        </div>
+        
+        <button onclick="solveInput()">Find Solution</button>
+        
+        <div id="result" class="hidden"></div>
+    </div>
+
+    <script>
+        function op(num, j) {
+            num = num + j;
+            if (num > 3 || num < 0) {
+                num = num % 3;
+            }
+            return num;
+        }
+
+        function good(arr) {
+            return arr.every(x => x === arr[0]);
+        }
+
+        function recurse(arr, ans, target, i) {
+            const n = arr.length;
+            if (good(arr)) {
+                return ans.slice();
+            }
+            if (i < n) {
+                let res = recurse(arr, ans, target, i + 1);
+                if (res) return res;
+
+                for (let j = 1; j < target; j++) {
+                    arr[i] = op(arr[i], j);
+                    arr[(i + 1) % n] = op(arr[(i + 1) % n], j);
+                    arr[(i - 1 + n) % n] = op(arr[(i - 1 + n) % n], j);
+                    ans[i] = j;
+
+                    res = recurse(arr, ans, target, i + 1);
+                    if (res) return res;
+
+                    arr[i] = op(arr[i], -j);
+                    arr[(i + 1) % n] = op(arr[(i + 1) % n], -j);
+                    arr[(i - 1 + n) % n] = op(arr[(i - 1 + n) % n], -j);
+                    ans[i] = 0;
+                }
+            }
+            return null;
+        }
+
+        function solve(inputArr, target) {
+            const arr = [...inputArr];
+            const ans = new Array(arr.length).fill(0);
+            return recurse(arr, ans, target, 0);
+        }
+
+        function solveInput() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'hidden';
+            
+            const arrayInput = document.getElementById('arrayInput').value;
+            const targetInput = document.getElementById('targetInput').value;
+
+            let arr;
+            try {
+                arr = arrayInput.split(',').map(Number);
+                if (arr.some(isNaN)) throw new Error('Invalid array');
+            } catch (e) {
+                resultDiv.textContent = 'Invalid array input. Please enter comma-separated integers.';
+                resultDiv.className = 'error';
+                return;
+            }
+
+            const target = parseInt(targetInput, 10);
+            if (isNaN(target) || target <= 0) {
+                resultDiv.textContent = 'Invalid target. Please enter a positive integer.';
+                resultDiv.className = 'error';
+                return;
+            }
+
+            const ans = solve(arr, target);
+
+            if (ans) {
+                resultDiv.textContent = 'Solution: [' + ans.join(', ') + ']';
+                resultDiv.className = 'success';
+            } else {
+                resultDiv.textContent = 'No solution found.';
+                resultDiv.className = 'error';
+            }
+        }
+    </script>
+</body>
+
+</html>
