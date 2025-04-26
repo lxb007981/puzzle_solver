@@ -134,10 +134,10 @@
     </div>
 
     <script>
-        function op(num, j) {
+        function op(num, j, target) {
             num = num + j;
-            if (num > 3 || num < 0) {
-                num = num % 3;
+            if (num > target || num < 0) {
+                num = num % target;
             }
             return num;
         }
@@ -156,17 +156,17 @@
                 if (res) return res;
 
                 for (let j = 1; j < target; j++) {
-                    arr[i] = op(arr[i], j);
-                    arr[(i + 1) % n] = op(arr[(i + 1) % n], j);
-                    arr[(i - 1 + n) % n] = op(arr[(i - 1 + n) % n], j);
+                    arr[i] = op(arr[i], j, target);
+                    arr[(i + 1) % n] = op(arr[(i + 1) % n], j, target);
+                    arr[(i - 1 + n) % n] = op(arr[(i - 1 + n) % n], j, target);
                     ans[i] = j;
 
                     res = recurse(arr, ans, target, i + 1);
                     if (res) return res;
 
-                    arr[i] = op(arr[i], -j);
-                    arr[(i + 1) % n] = op(arr[(i + 1) % n], -j);
-                    arr[(i - 1 + n) % n] = op(arr[(i - 1 + n) % n], -j);
+                    arr[i] = op(arr[i], -j, target);
+                    arr[(i + 1) % n] = op(arr[(i + 1) % n], -j, target);
+                    arr[(i - 1 + n) % n] = op(arr[(i - 1 + n) % n], -j, target);
                     ans[i] = 0;
                 }
             }
